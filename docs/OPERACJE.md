@@ -100,7 +100,24 @@ Wszystkie używają `venv\Scripts\python.exe`. Gdy arkusz jest otwarty w Excelu,
 | świeże dane z API | przycisk „Odśwież dane” → `POST /api/refresh` (czyści bundle i wykresy) |
 | wszystko od zera (bez danych użytkownika) | usuń `_cache/` i `_charts/` |
 | reset portfela | `state.json` → `{"tickers": [], "shares": {}, "cash": 0, ...}` |
-| nowa sesja Scraba | podmień `scrab_session.json`, zrestartuj aplikację |
+| nowa sesja Scraba | `Sesja-Scrab.bat` (albo `python sesja.py`), potem restart aplikacji |
+
+## Jak odnowić sesję Scraba
+
+Sesja to plik `scrab_session.json` z cookies z zalogowanej przeglądarki. Wygasa po około dwóch
+tygodniach — wtedy `api/company` zwraca 503 z komunikatem „Brak sesji Scrab”.
+
+1. Zaloguj się na https://app.scrab.com w Chrome lub Edge.
+2. Otwórz DevTools (F12) → zakładka **Network** → odśwież stronę → kliknij dowolne zapytanie do
+   `app.scrab.com/data/metric/`.
+3. W sekcji **Request Headers** znajdź `Cookie:`, skopiuj całą wartość (długi ciąg `nazwa=wartość; …`).
+4. Uruchom `Sesja-Scrab.bat` w katalogu projektu i wklej skopiowany ciąg, zatwierdź Enterem.
+   Skrypt zapisze plik i od razu sprawdzi sesję zapytaniem do API („Test API: OK”).
+5. Zrestartuj aplikację albo kliknij „Odśwież dane”.
+
+Bez skryptu: zapisz ręcznie JSON w formacie
+`{"saved": "2026-11-16 13:00", "cookies": [{"name": "sessionid", "value": "…"}, {"name": "csrftoken", "value": "…"}]}`.
+Plik jest w `.gitignore` — nigdy nie trafia do repozytorium i nie wolno go nikomu wysyłać.
 
 ## Dokumentacja PDF
 

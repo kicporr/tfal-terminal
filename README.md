@@ -58,6 +58,10 @@ venv\Scripts\pip install -r requirements.txt
 Then double-click `Terminal.bat` (or `venv\Scripts\pythonw.exe terminal.py`). The app creates its
 own state files on first run and listens on `http://127.0.0.1:8765`.
 
+To fetch market data, put your Scrab session in place: run `Sesja-Scrab.bat` and paste the `Cookie`
+header copied from DevTools (Network → any request to `app.scrab.com`) — the script writes
+`scrab_session.json` and tests it. Details in [docs/OPERACJE.md](docs/OPERACJE.md).
+
 ## Data and privacy
 
 Market data comes from three sources: **FactSet** fundamentals through the Scrab API, **Yahoo
