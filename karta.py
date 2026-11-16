@@ -226,6 +226,13 @@ def page_two(pdf, d, hist_rows):
         ax.plot(dates, cons, color=BLUE, lw=2.0, zorder=3)
         ax.plot(dates, price, color=INK, lw=1.8, zorder=4)
         ax.set_yscale("log")
+        lo = min(min(price), min(cons), min(opt))
+        hi = max(max(price), max(cons), max(opt))
+        ticks = [t for t in (5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000)
+                 if lo * 0.85 <= t <= hi * 1.15]
+        ax.set_yticks(ticks)
+        ax.set_yticklabels([_num(t) for t in ticks])
+        ax.set_ylim(lo * 0.9, hi * 1.08)
         ax.yaxis.set_major_formatter(FuncFormatter(lambda v, p: _num(v)))
         ax.yaxis.set_minor_locator(NullLocator())
         ax.grid(axis="y", color=GRID, lw=0.8)
@@ -244,7 +251,7 @@ def page_two(pdf, d, hist_rows):
         ax2.plot(dates, pot, color=BLUE, lw=1.2, zorder=3)
         ax2.axhline(0, color=INK, lw=0.8)
         ax2.axhline(15, color=GREEN, lw=0.8, ls=(0, (3, 2)))
-        ax2.text(dates[1], 15, " próg +15%", fontsize=7, color=GREEN, va="bottom")
+        ax2.text(dates[-1], 15, "próg +15% ", fontsize=7, color=GREEN, va="bottom", ha="right")
         ax2.set_ylim(min(pot + [-10]) - 6, max(pot + [20]) + 6)
         ax2.yaxis.set_major_formatter(FuncFormatter(lambda v, p: f"{v:.0f}%"))
         ax2.grid(axis="y", color=GRID, lw=0.7)
@@ -292,45 +299,24 @@ def page_two(pdf, d, hist_rows):
     plt.close(fig)
 
 
-def page_three(pdf, d, tl, total_hard, final):
-    """Strona 3: ocena, checklista przed decyzją i kryteria TFL policzone z danych."""
+def page_three(pdf, d, tl, total_hard, final, parts=None):
+    """Strona 3: ocena końcowa, kryteria TFL i to, co ją zdecydowało."""
     fig = plt.figure(figsize=A4)
     _header(fig, d, 3, 3)
 
     y = 0.900
-    fig.text(0.06, y, "OCENA, CHECKLISTA I KRYTERIA TFL", fontsize=9.5, fontweight="bold", color=INK)
+    fig.text(0.06, y, "OCENA I KRYTERIA TFL", fontsize=9.5, fontweight="bold", color=INK)
     y -= 0.030
     fig.text(0.06, y, f"ocena końcowa {_num(final, 1)} / 100 — {len(scoring.CRITERIA)} kryteriów "
-                      f"twardych (bez analizy miękkiej)", fontsize=8.5, color=INK)
-    y -= 0.036
-
-    items = _checklist(d.get("ticker") or "")
-    qs = [
-        "Czy umiem jednym zdaniem powiedzieć, na czym ta spółka zarabia?",
-        "Jaka jest moja teza inwestycyjna i co konkretnie musiałoby się stać, żeby ją odrzucić?",
-        "Czy zgadzam się z konsensusem prognoz, czy zakładam rewizję — i w którą stronę?",
-        "Ile mogę stracić, jeśli się mylę, i czy ta strata mieści się w limicie ryzyka portfela?",
-        "Czy mam dziś lepszą alternatywę na ten kapitał?",
-    ]
-    fig.text(0.06, y, "CHECKLISTA PRZED DECYZJĄ", fontsize=7.2, color=MUTE)
-    y -= 0.022
-    for i, q in enumerate(qs):
-        on = bool(items[i]) if i < len(items) else False
-        fig.patches.append(Rectangle((0.062, y - 0.003), 0.011, 0.011, transform=fig.transFigure,
-                                     facecolor=(GREEN if on else "white"),
-                                     edgecolor=(GREEN if on else GRID), lw=0.8))
-        if on:
-            fig.text(0.0655, y - 0.0065, "✓", fontsize=6.4, color="white")
-        fig.text(0.082, y - 0.003, f"{i + 1}. {q}", fontsize=7.8, color=INK)
-        y -= 0.027
-    y -= 0.016
+                      f"twardych (bez analizy miękkiej); checklista jest na stronie 2", fontsize=8.5, color=INK)
+    y -= 0.040
 
     rows = tl.get("rows") or []
-    fig.lines.append(plt.Line2D([0.06, 0.94], [y + 0.012, y + 0.012], color=GRID, lw=1,
-                                transform=fig.transFigure))
     fig.text(0.06, y, "KRYTERIA TFL — CO MÓWIĄ DANE", fontsize=9, fontweight="bold", color=INK)
     ok = sum(1 for r in rows if r["status"] == "ok")
     fig.text(0.94, y, f"{ok} z {len(rows)} na tak", fontsize=7.5, color=MUTE, ha="right")
+    y -= 0.012
+    fig.lines.append(plt.Line2D([0.06, 0.94], [y, y], color=GRID, lw=1, transform=fig.transFigure))
     y -= 0.026
 
     marks = {"ok": ("✓", GREEN), "uwaga": ("~", AMBER), "zle": ("✗", RED)}
@@ -340,12 +326,56 @@ def page_three(pdf, d, tl, total_hard, final):
         fig.text(0.084, y, r["label"], fontsize=8.3, color=INK)
         fig.text(0.895, y, r["val"], fontsize=7.8, color=MUTE, ha="right")
         fig.text(0.925, y, mark, fontsize=8.8, color=col)
-        y -= 0.031
+        y -= 0.036
+
+    # --- co zdecydowało o ocenie: 3 najmocniejsze i 3 najsłabsze kryteria
+    if parts:
+        items = [(k, parts.get(k), w) for k, _, w in scoring.CRITERIA if parts.get(k) is not None]
+        strong = sorted([t for t in items if (t[1] or 0) >= 9.5], key=lambda t: t[2], reverse=True)[:3]
+        weak = sorted([t for t in items if (t[1] or 0) < 8.5], key=lambda t: t[1] or 0)[:3]
+
+        y -= 0.022
+        fig.lines.append(plt.Line2D([0.06, 0.94], [y + 0.014, y + 0.014], color=GRID, lw=1,
+                                    transform=fig.transFigure))
+        fig.text(0.06, y, "CO ZDECYDOWAŁO O OCENIE", fontsize=9, fontweight="bold", color=INK)
+        y -= 0.030
+
+        def draw(group, x, head):
+            yy = y
+            fig.text(x, yy, head, fontsize=7.2, color=MUTE)
+            yy -= 0.022
+            for k, v, w in group:
+                fig.text(x, yy, scoring.SHORT[k], fontsize=8.2, color=INK)
+                fig.text(x + 0.33, yy, f"{_num(v, 1)}/10", fontsize=8.2, color=_score_color(v), ha="right")
+                fig.text(x + 0.395, yy, f"waga {w}", fontsize=7.2, color=MUTE, ha="right")
+                yy -= 0.022
+            return yy
+
+        y_left = draw(strong, 0.06, "NAJMOCNIEJSZE (10/10, najwyższe wagi)")
+        if weak:
+            y_right = draw(weak, 0.53, "NAJSŁABSZE (poniżej 8,5/10)")
+        else:
+            fig.text(0.53, y, "NAJSŁABSZE", fontsize=7.2, color=MUTE)
+            fig.text(0.53, y - 0.022, "żadne kryterium nie spada poniżej 8,5/10", fontsize=8.2, color=MUTE)
+            y_right = y - 0.044
+
+        if weak:
+            k, v, w = weak[0]
+            yy = min(y_left, y_right) - 0.012
+            for ln in (f"Najsłabsze ogniwo: {scoring.SHORT[k]} — {_num(v, 1)}/10 przy wadze {w}. "
+                       f"Sprawdź, czy to rok inwestycyjny, czy trwała cecha biznesu;",
+                       "przy powtórce w kolejnym okresie warto obniżyć wagę tego kryterium w modelu."):
+                fig.text(0.06, yy, ln, fontsize=7.6, color=INK)
+                yy -= 0.016
+
+    fig.text(0.06, 0.105, "Źródła: Scrab/FactSet (dane fundamentalne), Yahoo Finance (kurs, zdarzenia), "
+                          "NBP (kursy walut).", fontsize=6.8, color=MUTE)
+    fig.text(0.06, 0.090, "Model: cena docelowa z mnożników × prognozy 12M, ocena 0–100 z 16 kryteriów; "
+                          "pełna metodyka w dokumentacji (docs/MODEL.md).", fontsize=6.8, color=MUTE)
 
     _footer(fig)
     pdf.savefig(fig)
     plt.close(fig)
-
 
 def _meta(ticker):
     """Nazwa, giełda, waluta i konsensus — z Yahoo, jako uzupełnienie."""
@@ -402,7 +432,7 @@ def build(ticker, out=None):
     with PdfPages(out) as pdf:
         page_one(pdf, d, parts, final, rating, rows)
         page_two(pdf, d, rows)
-        page_three(pdf, d, tl, total_hard, final)
+        page_three(pdf, d, tl, total_hard, final, parts)
         info = pdf.infodict()
         info["Title"] = f"Karta spółki — {d['ticker']}"
         info["Subject"] = "Ocena spółki: wycena, jakość, scoring, historia"

@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning is [SemVer](https://semver.org/).
 
+## [1.0.2] — 2026-11-16
+
+### Fixed
+- Company card PDF duplicated the decision checklist on pages 2 and 3; it now appears once, and page 3
+  uses the space for "what decided the score" (strongest and weakest criteria) instead.
+- Logarithmic price chart in the PDF had only two gridlines; it now uses round ticks fitted to the data.
+- Chart price lines for cost and target price no longer print labels on the axis, where they collided
+  with the axis ticks.
+- Rebalance view states the currency explicitly: separate "amount (currency)" and "amount (PLN)"
+  columns, PLN totals in the KPI cards and the NBP rate used for conversion.
+
+### Changed
+- Dropdown lists follow the colour scheme of the app (light and dark), not the operating system.
+
 ## [1.0.1] — 2026-11-16
 
 ### Added

@@ -1036,10 +1036,16 @@ const PANEL_LABEL = {
   },
 };
 
+function disposeCharts(){
+  if(ICH && ICH.charts){ ICH.charts.forEach(c => { try{ c.remove(); }catch(e){} }); }
+  ICH = null;
+}
+
 async function initChart(t, opts){
   const host = $("#ichart");
   if(!host) return;
-  if(ICH){ try{ ICH.charts.forEach(c=>c.remove()); }catch(e){} ICH = null; }
+  disposeCharts();
+  host.replaceChildren();
   const o = Object.assign(chartOpts(), opts || {});
   state.chartOpts = o;
 
@@ -1152,11 +1158,11 @@ async function initChart(t, opts){
 
   if(o.levels){
     if(d.avg_cost) priceSeries.createPriceLine({ price:d.avg_cost, color: ink, lineWidth:1, lineStyle:0,
-      axisLabelVisible:true, title:"koszt" });
+      axisLabelVisible:false, title:"koszt" });
     const ptc = useScrab ? (d.pt_scrab.length ? d.pt_scrab[d.pt_scrab.length-1][1] : null)
                          : (d.pt.length ? d.pt[d.pt.length-1][1] : null);
     if(ptc) priceSeries.createPriceLine({ price:ptc, color: good, lineWidth:1, lineStyle:2,
-      axisLabelVisible:true, title:"PT" });
+      axisLabelVisible:false, title:"PT" });
   }
 
   // ---- panele (jak w Scrabie: osobna skala, wspólny czas) ----
@@ -1820,24 +1826,29 @@ async function viewRebalance(){
     if(d.error){ $("#result").innerHTML = `<div class="empty">${d.error}</div>`; return; }
     $("#result").innerHTML = `
       <div class="kpis" style="margin-bottom:16px">
-        <div class="kpi"><div class="l">Kupić za</div><div class="v">${fmt(d.buy,0)}</div></div>
-        <div class="kpi"><div class="l">Sprzedać za</div><div class="v">${fmt(d.sell,0)}</div></div>
-        <div class="kpi"><div class="l">Gotówka po</div><div class="v">${fmt(d.cash_after,0)}</div></div>
+        <div class="kpi"><div class="l">Kupić za</div><div class="v">${fmt(d.buy_pln,0)} zł</div>
+          <div class="s">${fmt(d.buy,0)} w walutach spółek</div></div>
+        <div class="kpi"><div class="l">Sprzedać za</div><div class="v">${fmt(d.sell_pln,0)} zł</div>
+          <div class="s">${fmt(d.sell,0)} w walutach spółek</div></div>
+        <div class="kpi"><div class="l">Gotówka po</div><div class="v">${fmt(d.cash_after,0)} zł</div>
+          <div class="s">wolne środki w PLN</div></div>
         <div class="kpi"><div class="l">Obrót</div><div class="v">${pct(d.turnover)}</div></div>
       </div>
       <div class="card" style="padding:0;overflow:hidden">
         <table>
           <thead><tr><th><input type="checkbox" id="rb_all" title="zaznacz wszystkie"></th>
             <th>Ticker</th><th class="r">Waga teraz</th><th class="r">Waga docelowa</th>
-            <th class="r">Różnica</th><th>Akcja</th><th class="r">Sztuk</th><th class="r">Kwota</th><th class="r">PLN</th><th>Sektor</th></tr></thead>
+            <th class="r">Różnica</th><th>Akcja</th><th class="r">Sztuk</th><th class="r">Cena</th>
+            <th class="r">Kwota (waluta)</th><th class="r">Kwota (PLN)</th><th>Sektor</th></tr></thead>
           <tbody>${d.trades.map((t,i)=>`
             <tr><td><input type="checkbox" class="rbck" data-i="${i}" ${t.action==="—"?"disabled":""}></td>
                 <td class="tk">${t.ticker}</td>
                 <td class="r">${pct(t.w_now)}</td><td class="r"><b>${pct(t.w_tgt)}</b></td>
                 <td class="r ${t.delta>0?"pos":"neg"}">${(t.delta*100).toLocaleString("pl-PL",{minimumFractionDigits:1,maximumFractionDigits:1})} p.p.</td>
                 <td style="color:${t.action==="KUP"?"var(--good)":t.action==="SPRZEDAJ"?"var(--bad)":"var(--mut)"}"><b>${t.action}</b></td>
-                <td class="r">${t.qty}</td><td class="r">${fmt(t.amount,0)}</td>
-                <td class="r">${fmt(t.amount_pln,0)}</td><td class="mut">${t.sector}</td></tr>`).join("")}
+                <td class="r">${fmt(t.qty, 2)}</td><td class="r">${fmt(t.price)} ${t.currency||""}</td>
+                <td class="r">${fmt(t.amount,0)} ${t.currency||""}</td>
+                <td class="r"><b>${fmt(t.amount_pln,0)} zł</b></td><td class="mut">${t.sector}</td></tr>`).join("")}
           </tbody>
         </table>
       </div>
@@ -1852,7 +1863,10 @@ async function viewRebalance(){
         if(inv < 0.98){
           parts.push(`<p class="hintline"><b>Dlaczego wagi sumują się do ${pct(inv,0)}.</b> Limity nie pozwalają ulokować reszty: przy limicie sektora ${$("#maxsec").value || "25"}% i tym składzie część kapitału musi zostać w gotówce. Chcesz być w pełni zainwestowany — podnieś limit sektora albo dodaj spółki z innych sektorów.</p>`);
         }
-        parts.push(`<p class="hintline"><b>Kolejność wykonania:</b> najpierw wszystkie sprzedaże (${fmt(d.sell,0)} PLN), po rozliczeniu kupna (${fmt(d.buy,0)} PLN). Kwoty w walucie spółki są w kolumnie „Kwota”, przeliczenie na PLN obok.</p>`);
+        const fxList = [...new Map(d.trades.filter(t => t.action !== "—" && t.currency && t.currency !== "PLN")
+          .map(t => [t.currency, t.fx])).entries()].map(([c, v]) => `${c}/PLN ${fmt(v,4)}`).join(" · ");
+        parts.push(`<p class="hintline"><b>Waluty:</b> kolumna „Kwota (waluta)” jest w walucie spółki (USD, EUR), a „Kwota (PLN)” to przeliczenie po kursie NBP z dnia wyceny${fxList ? " — " + fxList : ""}. Sprzedaże: ${fmt(d.sell_pln,0)} zł, kupna: ${fmt(d.buy_pln,0)} zł.</p>`);
+        parts.push(`<p class="hintline"><b>Kolejność wykonania:</b> najpierw wszystkie sprzedaże, po rozliczeniu kupna — z nich finansują się zakupy. Zlecenia w USD składasz w sztukach, a rozliczenie i tak wróci w PLN.</p>`);
         parts.push(`<p class="hintline"><b>Po wykonaniu</b> zaznacz zamówienia i kliknij „Wykonaj zaznaczone" — transakcje wejdą do dziennika, a sztuki i gotówka zaktualizują się same. Gotówka po: <b>${fmt(d.cash_after,0)} PLN</b> (${pct(cashPct)}).</p>`);
         return parts.join("");
       })()}`;
@@ -1924,7 +1938,7 @@ const views = {portfolio:viewPortfolio, company:()=>viewCompany(state.current),
                risk:viewRisk, calendar:viewCalendar, rebalance:viewRebalance, screener:viewScreener,
                journal:viewJournal, performance:viewPerformance};
 function setNav(v){
-  if(ICH && v !== "company"){ try{ ICH.chart.remove(); }catch(e){} ICH = null; }
+  if(v !== "company") disposeCharts();
   document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on", a.dataset.v===v));
   const b=$("#pdf");
   b.style.display = (v==="calendar" || v==="screener" || v==="journal" || v==="performance") ? "none" : "";
