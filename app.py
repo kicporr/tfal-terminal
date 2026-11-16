@@ -41,6 +41,12 @@ os.makedirs(CHARTS, exist_ok=True)
 ALL = sc.METRICS + sc.EXTRA_METRICS
 TTL = 4 * 3600
 app = Flask(__name__, static_folder=None)
+
+
+@app.errorhandler(sc.ScrabError)
+def _scrab_error(e):
+    """Brak sesji Scrab nie może kończyć się surowym tracebackiem w UI."""
+    return jsonify({"error": "Brak sesji Scrab — dodaj plik scrab_session.json i odśwież dane."}), 503
 _lock = threading.Lock()
 
 
