@@ -5,6 +5,10 @@ accounting and reporting — running as a desktop app on your own machine and da
 
 ![Company card](screenshots/company-card.png)
 
+> **Recruiter / reviewer?** Start with [`PRZEWODNIK-po-projekcie.docx`](PRZEWODNIK-po-projekcie.docx) —
+> a 7-page guide (in Polish) covering what the app does, a walkthrough of every screen, how the
+> numbers are computed, how to run it and what it does not do.
+
 ## Why it exists
 
 Spreadsheet valuation works until you want to answer the same questions every week: *what is this
@@ -57,6 +61,10 @@ Data comes from three sources: FactSet fundamentals through the Scrab API, quote
 events from Yahoo Finance, FX rates from the NBP API. Everything is cached on disk; the app works
 offline once the data is fetched.
 
+`pt.py`, `batch.py` and `analiza.py` are the original command-line prototypes (single-company
+valuation, portfolio scoring, the first Excel export). They still run, but the app supersedes them
+and they are kept to show how the model evolved.
+
 ## Running it
 
 Requires Windows 10/11 with WebView2 (ships with Edge) and Python 3.12.
@@ -87,6 +95,8 @@ because you read a level there, not a percentage change.
 - [`docs/API.md`](docs/API.md) — endpoints and payloads
 - [`docs/OPERACJE.md`](docs/OPERACJE.md) — running, troubleshooting, limitations
 - [`docs/Dokumentacja-TFAL.pdf`](docs/Dokumentacja-TFAL.pdf) — printable 31-page version
+- [`PRZEWODNIK-po-projekcie.docx`](PRZEWODNIK-po-projekcie.docx) — 7-page guide for reviewers
+  ([PDF](docs/PRZEWODNIK-po-projekcie.pdf))
 
 ## Status and next steps
 
