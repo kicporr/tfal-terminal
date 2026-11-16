@@ -1,0 +1,20 @@
+# dane lokalne i sekrety — nigdy do repo
+venv/
+__pycache__/
+*.pyc
+_cache/
+_charts/
+scrab_session.json
+state.json
+journal.json
+soft.json
+checklist.json
+reviews.json
+assumptions.json
+pt_log.json
+*.bak
+*.xlsx
+Karta_*.pdf
+TFAL-log.txt
+.vscode/
+.idea/
