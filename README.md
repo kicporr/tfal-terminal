@@ -5,6 +5,9 @@ accounting and reporting — running as a desktop app on your own machine and da
 
 ![Company card](screenshots/company-card.png)
 
+> **90-second demo:** [`demo.mp4`](demo.mp4) — portfolio, the company card, scoring, estimate revisions,
+> the chart, the journal, performance, risk and rebalancing, recorded on anonymised sample data.
+>
 > **Recruiter / reviewer?** Start with [`PRZEWODNIK-po-projekcie.docx`](PRZEWODNIK-po-projekcie.docx) —
 > a 7-page guide (in Polish) covering what the app does, a walkthrough of every screen, how the
 > numbers are computed, how to run it and what it does not do.
