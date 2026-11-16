@@ -1,0 +1,15 @@
+# normalizacja końców linii
+* text=auto eol=lf
+
+# pliki binarne — bez konwersji
+*.png   binary
+*.gif   binary
+*.jpg   binary
+*.mp4   binary
+*.pdf   binary
+*.woff2 binary
+*.xlsx  binary
+*.docx  binary
+
+# skrypty Windows zachowują własne końce linii
+*.bat   -text

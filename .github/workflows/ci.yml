@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  syntax:
+    name: Python syntax and repository hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile every module
+        run: python -m compileall -q .
+
+      - name: Required files are present
+        run: |
+          for f in README.md LICENSE docs/MODEL.md docs/API.md requirements.txt; do
+            test -f "$f" || { echo "missing: $f"; exit 1; }
+          done
+
+      - name: No secrets or local data committed
+        run: |
+          if git ls-files | grep -Ei 'scrab_session|journal\.json|state\.json|_cache/'; then
+            echo "local data must not be committed"; exit 1
+          fi

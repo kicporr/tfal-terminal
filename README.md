@@ -1,114 +1,114 @@
 # TFAL Terminal
 
-A local equity-research terminal for a single investor: valuation, quality scoring, portfolio
-accounting and reporting — running as a desktop app on your own machine and data files.
+**A desktop equity-research terminal for a single investor.** It values a company at its own
+historical multiples, scores it on 16 criteria, keeps a FIFO journal with FX at trade date and
+reports what the portfolio actually earned — all locally, on your own files.
 
-![Company card](screenshots/company-card.png)
+[![CI](https://github.com/kicporr/tfal-terminal/actions/workflows/ci.yml/badge.svg)](https://github.com/kicporr/tfal-terminal/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-1E4A3A)](LICENSE)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-1E4A3A)](requirements.txt)
+[![Platform: Windows 10/11](https://img.shields.io/badge/platform-Windows%2010%2F11-1E4A3A)](#quick-start)
 
-> **90-second demo:** [`demo.mp4`](demo.mp4) — portfolio, the company card, scoring, estimate revisions,
-> the chart, the journal, performance, risk and rebalancing, recorded on anonymised sample data.
->
-> **Recruiter / reviewer?** Start with [`PRZEWODNIK-po-projekcie.docx`](PRZEWODNIK-po-projekcie.docx) —
-> a 7-page guide (in Polish) covering what the app does, a walkthrough of every screen, how the
-> numbers are computed, how to run it and what it does not do.
+![Demo](screenshots/demo.gif)
+
+*90-second walkthrough — [demo.mp4](demo.mp4) (recorded on anonymised sample data).*
 
 ## Why it exists
 
 Spreadsheet valuation works until you want to answer the same questions every week: *what is this
-company worth at its own historical multiples, how does it score on fundamentals, what did my
-portfolio actually earn, and how much of that was the stock versus the currency?* This project
-turns that manual routine into a reproducible tool.
+company worth at its own multiples, how does it score on fundamentals, what did my portfolio earn,
+and how much of that was the stock versus the currency?* This project turns that manual routine into
+a reproducible tool with one source of truth: the numbers on screen and the numbers in the PDF come
+from the same calculation.
 
-The valuation method follows the approach I use for my own portfolio: target price from historical
-P/E, P/S and EV/EBITDA multiples (3-year window) applied to 12-month forward estimates, plus a
-16-criterion quality score computed from the same data.
+## Features
 
-## What it does
+| Area | What it does |
+|---|---|
+| **Valuation** | Target price from 3-year P/E, P/S and EV/EBITDA multiples applied to 12-month forward estimates; conservative (median) and optimistic (median of yearly highs) scenarios; sensitivity grids; inverted "what the price assumes" calculator; custom PS 2Y / revenue-growth ratio |
+| **Quality score** | 16 criteria across growth, balance sheet, capital returns (ROIC), cash conversion (FCF/net income), relative valuation and estimate revisions; interpolated thresholds; weights renormalise on missing data |
+| **Portfolio** | FIFO cost basis in the instrument currency, P&L converted at the **transaction-date** FX rate, position weights, watchlist, source switch between model and consensus target price |
+| **Journal** | Manual entry or XTB import with duplicate detection; per-ticker hit rate, holding period and price 60 days after a sale |
+| **Performance** | TWR and MWR (XIRR), drawdown, monthly returns, benchmark comparison (S&P 500, Nasdaq 100, MSCI World, WIG20TR) with beta, alpha, tracking error and up/down capture; attribution including cash and FX |
+| **Risk** | Annualised volatility, parametric and historical VaR, correlation matrix, risk contribution, HHI concentration, stress scenarios |
+| **Reporting** | Three-page company card PDF, portfolio and rebalance exports, 31-page documentation PDF generated from Markdown |
+| **Shell** | Frameless WebView2 window with its own title bar, single-instance guard, light and dark themes, logs to `TFAL-log.txt` |
 
-**Valuation** — conservative and optimistic target price (median and median-of-yearly-highs
-multiples × forward EPS / revenue per share), sensitivity grids, an inverted "what the price
-assumes" calculator, and a custom PS 2Y / revenue-growth ratio.
+## Screenshots
 
-**Quality score** — 16 criteria across growth, balance sheet, capital returns (ROIC), cash
-conversion (FCF/net income), valuation vs own history (P/E, P/S, EV/EBITDA) and estimate
-revisions (target price and EPS). Thresholds are interpolated instead of stepped; missing data
-renormalises weights instead of scoring zero.
+| Company card | Chart panels |
+|---|---|
+| ![Company card](screenshots/card-header.png) | ![Chart panels](screenshots/chart-panels.png) |
 
-**Portfolio accounting** — FIFO cost basis in the instrument currency, P&L converted at the
-transaction-date FX rate (not today's), TWR and MWR (XIRR), drawdown, monthly returns, benchmark
-comparison (S&P 500, Nasdaq 100, MSCI World, WIG20TR), attribution per holding, and journal
-statistics: hit rate, average holding period, what the price did 60 days after each sale.
+## Quick start
 
-**Risk** — annualised volatility, VaR (parametric and historical), correlation matrix, risk
-contribution, concentration (HHI), simple stress scenarios.
-
-**Reporting** — three-page company card PDF, portfolio/rebalance exports, and a 31-page
-documentation PDF generated from Markdown.
-
-## Architecture
-
-```
-app.py            Flask API (28 endpoints) + view models
-scoring.py        quality score, criteria weights, metric normalisation
-tfl.py            data-driven checklist (trend, revisions, forward ratios)
-scrab_client.py   FactSet data via the Scrab API (session cookie, cached bundles)
-perf.py           benchmark series, relative metrics, FX history (NBP)
-wyniki.py         TWR/MWR engine over the transaction journal
-rebalans.py       target weights, position/sector caps, order list
-karta.py          company card PDF (matplotlib)
-web/              single-page frontend: HTML + CSS + Lightweight Charts, no framework
-desktop.py        frameless WebView2 window (pywebview), single-instance mutex
-```
-
-Data comes from three sources: FactSet fundamentals through the Scrab API, quotes and corporate
-events from Yahoo Finance, FX rates from the NBP API. Everything is cached on disk; the app works
-offline once the data is fetched.
-
-`pt.py`, `batch.py` and `analiza.py` are the original command-line prototypes (single-company
-valuation, portfolio scoring, the first Excel export). They still run, but the app supersedes them
-and they are kept to show how the model evolved.
-
-## Running it
-
-Requires Windows 10/11 with WebView2 (ships with Edge) and Python 3.12.
+Requires **Windows 10/11** (WebView2 ships with Edge) and **Python 3.12**.
 
 ```bash
 python -m venv venv
 venv\Scripts\pip install -r requirements.txt
 ```
 
-Then double-click `Terminal.bat` (or `venv\Scripts\pythonw.exe terminal.py`).
+Then double-click `Terminal.bat` (or `venv\Scripts\pythonw.exe terminal.py`). The app creates its
+own state files on first run and listens on `http://127.0.0.1:8765`.
 
-On first run the app creates its own state files. **The repository contains no data and no
-credentials** — market data needs a Scrab session (`scrab_session.json`, exported cookies from a
-logged-in browser), which is not included and must not be committed.
+## Data and privacy
 
-## Design notes
+Market data comes from three sources: **FactSet** fundamentals through the Scrab API, **Yahoo
+Finance** for quotes and corporate events, and the **NBP** (Polish central bank) for FX rates.
+Everything is cached on disk, so the app keeps working offline once data is fetched.
 
-The interface is deliberately paper-like: light background, serif headings, monospaced numbers, no
-cards with shadows. Only the price chart uses a logarithmic scale — multiple panels stay linear,
-because you read a level there, not a percentage change.
+The repository contains **no market data, no credentials and no portfolio records**. Fetching new
+data needs your own Scrab session (`scrab_session.json`, cookies exported from a logged-in browser);
+without it the app starts and shows a message instead of data. Files that hold personal data —
+`state.json`, `journal.json`, `checklist.json`, `_cache/` — are listed in `.gitignore` and must never
+be committed.
 
-![Chart panels](screenshots/chart-panels.png)
+## Architecture
+
+```
+app.py            Flask API (28 endpoints) and view models
+scoring.py        quality score, criteria weights, metric normalisation
+tfl.py            data-driven checklist: trend, revisions, forward ratios
+scrab_client.py   FactSet data through the Scrab API: session, cache, multiples
+perf.py           benchmark series, relative metrics, NBP FX history
+wyniki.py         TWR/MWR engine over the transaction journal
+rebalans.py       target weights, position and sector caps, order list
+karta.py          company card PDF (matplotlib)
+web/              single-page frontend: HTML, CSS, bundled fonts, Lightweight Charts
+desktop.py        frameless WebView2 window (pywebview), single-instance mutex
+```
+
+`pt.py`, `batch.py` and `analiza.py` are the original command-line prototypes (single-company
+valuation, portfolio scoring, the first Excel export). They still run, but the app supersedes them;
+they are kept to show how the model evolved.
 
 ## Documentation
 
-- [`docs/MODEL.md`](docs/MODEL.md) — every formula: valuation, scoring, risk, performance
-- [`docs/ARCHITEKTURA.md`](docs/ARCHITECTURA.md) — modules, data flow, files
-- [`docs/API.md`](docs/API.md) — endpoints and payloads
-- [`docs/OPERACJE.md`](docs/OPERACJE.md) — running, troubleshooting, limitations
-- [`docs/Dokumentacja-TFAL.pdf`](docs/Dokumentacja-TFAL.pdf) — printable 31-page version
-- [`PRZEWODNIK-po-projekcie.docx`](PRZEWODNIK-po-projekcie.docx) — 7-page guide for reviewers
-  ([PDF](docs/PRZEWODNIK-po-projekcie.pdf))
+- [docs/PRZEWODNIK-po-projekcie.pdf](docs/PRZEWODNIK-po-projekcie.pdf) — 7-page guide for reviewers (Polish): every screen, the method, how to run it
+- [docs/MODEL.md](docs/MODEL.md) — every formula: valuation, scoring, risk, performance
+- [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) — modules, data flow, files on disk
+- [docs/API.md](docs/API.md) — endpoints and payloads
+- [docs/DANE.md](docs/DANE.md) — data sources, metric keys, caching
+- [docs/OPERACJE.md](docs/OPERACJE.md) — running, troubleshooting, limitations
+- [docs/Dokumentacja-TFAL.pdf](docs/Dokumentacja-TFAL.pdf) — the same documents as a printable 31-page PDF
 
-## Status and next steps
+## Limitations
 
-Personal project, under active development. Known gaps: no tax reporting (PIT-38), journal does not
-handle stock splits, and the date range selector on the results view only affects charts, not KPIs.
+Named openly, because a model you cannot audit is a model you cannot trust:
 
-## Disclaimer
+- no tax reporting (PIT-38, Polish withholding); portfolio results are gross,
+- the journal does not handle stock splits — transactions must be corrected after a split,
+- the date-range selector on the results view changes the charts, not the KPIs,
+- daily data only (close prices); this is not an intraday terminal,
+- single-user and local: no login, no cloud, no multi-device sync,
+- fetching new data requires a paid Scrab/FactSet subscription.
 
-Educational project, not investment advice. Market data belongs to its providers (FactSet/Scrab,
-Yahoo Finance, NBP) and is not redistributed here. The code is published for portfolio review.
+## License
+
+Code under the [MIT license](LICENSE). Bundled fonts and libraries keep their own licences — see
+[THIRD-PARTY.md](THIRD-PARTY.md). Market data is not redistributed.
+
+---
 
 **Kacper Teichert** · [github.com/kicporr](https://github.com/kicporr) · kacper.teichert6790@gmail.com
