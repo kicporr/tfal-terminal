@@ -1,31 +1,33 @@
 <!doctype html><html><head><meta charset="utf-8"><style>
-@font-face{font-family:Spectral;src:url(fonts/Spectral-600-latin.woff2) format('woff2');font-weight:600}
-@font-face{font-family:Spectral;src:url(fonts/Spectral-400-latin.woff2) format('woff2');font-weight:400}
-@font-face{font-family:Inter;src:url(fonts/Inter-400-latin.woff2) format('woff2');font-weight:400}
-@font-face{font-family:Plex;src:url(fonts/IBMPlexMono-500-latin.woff2) format('woff2');font-weight:500}
+@font-face{font-family:Spectral;src:url(fonts/Spectral-600-latin.woff2) format('woff2');font-weight:600;unicode-range:U+0000-00FF}
+@font-face{font-family:Spectral;src:url(fonts/Spectral-600-latin-ext.woff2) format('woff2');font-weight:600;unicode-range:U+0100-02AF}
+@font-face{font-family:Inter;src:url(fonts/Inter-400-latin.woff2) format('woff2');font-weight:400;unicode-range:U+0000-00FF}
+@font-face{font-family:Inter;src:url(fonts/Inter-400-latin-ext.woff2) format('woff2');font-weight:400;unicode-range:U+0100-02AF}
+@font-face{font-family:Plex;src:url(fonts/IBMPlexMono-500-latin.woff2) format('woff2');font-weight:500;unicode-range:U+0000-00FF}
+@font-face{font-family:Plex;src:url(fonts/IBMPlexMono-500-latin-ext.woff2) format('woff2');font-weight:500;unicode-range:U+0100-02AF}
 *{margin:0;box-sizing:border-box}
 body{width:1280px;height:640px;background:#FAFAF6;color:#14140F;font-family:Inter,sans-serif;
   display:grid;grid-template-columns:600px 1fr;align-items:center;padding:52px 56px 52px 64px;gap:44px;
-  border-top:10px solid #1E4A3A}
-.kicker{font-family:Plex,monospace;font-size:13px;letter-spacing:.22em;color:#2F6B4F;margin-bottom:18px}
-h1{font-family:Spectral,serif;font-weight:600;font-size:37px;line-height:1.15;letter-spacing:-.012em}
+  border-top:9px solid #1E4A3A}
+.kicker{font-family:Plex,monospace;font-size:12px;letter-spacing:.2em;color:#2F6B4F;margin-bottom:16px}
+h1{font-family:Spectral,serif;font-weight:600;font-size:36px;line-height:1.16;letter-spacing:-.012em}
 h1 em{font-style:normal;color:#1E4A3A}
-p{margin-top:16px;font-size:14px;line-height:1.55;color:#5F5F58;max-width:510px}
-.meta{margin-top:34px;font-family:Plex,monospace;font-size:12px;letter-spacing:.12em;color:#A39E90}
-.shot{position:relative}
-.shot img{width:100%;border:1px solid #E5E2D7;border-radius:6px;box-shadow:0 22px 60px rgba(20,20,15,.14)}
-.tag{position:absolute;left:-14px;bottom:-16px;background:#1E4A3A;color:#F6F4EC;font-family:Plex,monospace;
-  font-size:11px;letter-spacing:.14em;padding:8px 12px;border-radius:3px}
+p{margin-top:16px;font-size:14px;line-height:1.55;color:#5F5F58;max-width:515px}
+.meta{margin-top:26px;font-family:Plex,monospace;font-size:11px;letter-spacing:.12em;color:#A39E90}
+.shot{position:relative;padding-bottom:6px}
+.shot img{width:100%;border:1px solid #E5E2D7;border-radius:5px;box-shadow:0 20px 50px rgba(20,20,15,.15)}
+.tag{position:absolute;left:-12px;bottom:-4px;background:#1E4A3A;color:#F6F4EC;font-family:Plex,monospace;
+  font-size:10.5px;letter-spacing:.12em;padding:8px 12px;border-radius:3px}
 </style></head><body>
 <div>
-  <div class="kicker">LOCAL EQUITY RESEARCH TERMINAL</div>
-  <h1>Value a company at its own <em>multiples</em>, score it on 16 criteria, track what the portfolio really earned.</h1>
-  <p>Python + Flask desktop app: FactSet data through the Scrab API, P/E, P/S and EV/EBITDA
-     valuation, FIFO journal with FX at trade date, TWR/MWR performance, risk and PDF reports.</p>
-  <div class="meta">PYTHON · FLASK · WEBVIEW2 · 28 API ENDPOINTS</div>
+  <div class="kicker">LOKALNY TERMINAL ANALITYCZNY</div>
+  <h1>Wycena spółki na jej własnych <em>mnożnikach</em>, ocena na 16 kryteriów, wynik portfela bez upiększeń.</h1>
+  <p>Aplikacja desktopowa w Pythonie: dane FactSet przez API Scraba, wycena P/E, P/S i EV/EBITDA,
+     dziennik FIFO z kursem z dnia transakcji, TWR/MWR, ryzyko i raporty PDF.</p>
+  <div class="meta">PYTHON · FLASK · WEBVIEW2 · 28 ENDPOINTÓW</div>
 </div>
 <div class="shot">
   <img src="social-shot.png">
-  <div class="tag">NVDA · OCENA 95,8 · PT 418,80 USD</div>
+  <div class="tag">NVDA · OCENA 95,8 · CENA DOCELOWA 418,80 USD</div>
 </div>
 </body></html>
