@@ -11,6 +11,10 @@ All notable changes to this project are documented here. Format follows
 - "How to renew the Scrab session" instructions in `docs/OPERACJE.md`, in the README quick start
   and in the reviewer guide (PDF).
 
+### Fixed
+- The journal view no longer crashes on an empty journal (`UnboundLocalError: sec`); it shows the
+  "Pusty dziennik" card with the option to seed opening positions from the portfolio.
+
 ### Changed
 - Documentation PDF rebuilt with the new section (32 pages).
 

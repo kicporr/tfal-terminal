@@ -840,6 +840,7 @@ def api_journal():
     txs = d["transactions"]
     tickers = sorted({t["ticker"] for t in txs if t.get("ticker")})
     prices, fxmap, meta, pser = {}, {}, {}, {}
+    sec = {}          # pusty dziennik: fill_sectors nie jest wołany, a _fx_for go potrzebuje
     if tickers:
         grouped = cached_post(tickers)
         sec = fill_sectors(tickers)
