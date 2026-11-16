@@ -36,9 +36,15 @@ from the same calculation.
 
 ## Screenshots
 
-| Company card | Chart panels |
-|---|---|
-| ![Company card](screenshots/card-header.png) | ![Chart panels](screenshots/chart-panels.png) |
+<img src="screenshots/company-card.png" width="540" alt="Company card: verdict, target prices, multiples and the 16-criterion score">
+
+*Company card — verdict, two target prices, multiples against the company's own median, and the
+16-criterion score with the raw metrics next to it.*
+
+<img src="screenshots/chart-panels.png" width="900" alt="Price chart with multiple panels">
+
+*Price on a logarithmic scale; multiple panels stay linear, because you read a level there, not a
+percentage change.*
 
 ## Quick start
 
