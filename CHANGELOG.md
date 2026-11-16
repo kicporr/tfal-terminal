@@ -3,6 +3,17 @@
 All notable changes to this project are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning is [SemVer](https://semver.org/).
 
+## [1.0.1] — 2026-11-16
+
+### Added
+- `sesja.py` and `Sesja-Scrab.bat`: paste the `Cookie` header copied from the browser's DevTools,
+  and the script writes `scrab_session.json` and validates it with a test request.
+- "How to renew the Scrab session" instructions in `docs/OPERACJE.md`, in the README quick start
+  and in the reviewer guide (PDF).
+
+### Changed
+- Documentation PDF rebuilt with the new section (32 pages).
+
 ## [1.0.0] — 2026-11-16
 
 First public release.

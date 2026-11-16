@@ -128,6 +128,7 @@ odczycie (`load_state`, `load_journal`), stare dane działają bez konwersji.
   i sprawdza, że plik leży w katalogu aplikacji.
 - `/api/journal`, `/api/state`, `/api/checklist` — walidacja typów i zakresów; brak SQL, brak eval.
 - `scrab_session.json` to sekret: nie loguje się go, nie wysyła, nie commitować do repo.
+- Sesję ustawia `Sesja-Scrab.bat` → `sesja.py` (wklejenie nagłówka Cookie z DevTools); procedura w `docs/OPERACJE.md`.
 
 ## Wydajność — gdzie uważać
 

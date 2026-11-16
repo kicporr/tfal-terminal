@@ -87,6 +87,7 @@ rebalans.py       target weights, position and sector caps, order list
 karta.py          company card PDF (matplotlib)
 web/              single-page frontend: HTML, CSS, bundled fonts, Lightweight Charts
 desktop.py        frameless WebView2 window (pywebview), single-instance mutex
+sesja.py          writes scrab_session.json from a pasted Cookie header (Sesja-Scrab.bat)
 ```
 
 `pt.py`, `batch.py` and `analiza.py` are the original command-line prototypes (single-company
